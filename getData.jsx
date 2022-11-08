@@ -7,7 +7,7 @@ function App() {
     const [posts, setPosts] = useState([]);
     const [userInput, setUserInput] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
-    const postsPerPage = 50;
+    const postsPerPage = 10;
 
     useEffect(() => {
         if (query !=="") {
@@ -33,24 +33,33 @@ function App() {
         }
     },[query])
 
-    const Pagination = ({postsPerPage, totalPosts, paginate}) => {
-        const pageNumbers = [];
-        for (let i = 1; i <= Math.ceil(totalPosts / postsPerPage); i++) {
-            pageNumbers.push(i);
-        } 
-          
+    const Pagination = ({postsPerPage, totalPosts}) => {
+        let previewButton; 
+        let nextButton;
+
+        if (currentPage === 1) {
+            previewButton = <button id="prevButton" className="btn btn-light btn-outline-dark" disabled onClick={()=> setCurrentPage((currentPage - 1))}>Prev</button>;
+        } else{
+            previewButton = <button id="prevButton" className="btn btn-light btn-outline-dark" onClick={()=> setCurrentPage((currentPage - 1))}><a className="scrollBtn" href="#top">Prev</a></button>;
+        }
+
+        if (currentPage === Math.ceil(totalPosts / postsPerPage)) {
+            nextButton = <button id="nextButton" className="btn btn-light btn-outline-dark" disabled onClick={()=> setCurrentPage((currentPage + 1))}>Next</button>;
+        } else {
+            nextButton = <button id="nextButton" className="btn btn-light btn-outline-dark" onClick={()=> setCurrentPage((currentPage + 1))}><a className="scrollBtn" href="#top">Next</a></button>;
+        }
+
         return (
-            <nav>
-                <ul className="pagination">
-                    {pageNumbers.map(number =>(
-                        <li key={number}>
-                            <button onClick={() => paginate(number)} key={number} id={number} className={currentPage === number ? "btn btn-secondary" : 'btn btn-light'}>
-                            <a href="#top">{number}</a>
-                            </button>
-                        </li>
-                    ))}
-                </ul>
-            </nav>
+            <>
+            {
+                totalPosts === 0 ? ('') : (
+                    <div className="inputStyle">
+                        {previewButton}
+                        {nextButton}
+                    </div>
+                )
+            }
+            </>
         )
     }
 
@@ -63,7 +72,6 @@ function App() {
     const indexOfLastPost = currentPage * postsPerPage;
     const indexOfFirstPost = indexOfLastPost - postsPerPage;
     const currentPosts = posts.slice(indexOfFirstPost, indexOfLastPost);
-    const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
     const handleSubmit = (event) => {
         if (userInput === '') {
@@ -86,10 +94,9 @@ function App() {
                 </ul>
             </div>
             <Pagination 
-                postsPerPage={postsPerPage} 
-                totalPosts={posts.length} 
-                paginate={paginate} 
-                />
+            postsPerPage={postsPerPage} 
+            totalPosts={posts.length}
+            />
         </form>
     )
 }

@@ -32,6 +32,10 @@ body {
     object-fit: none;
 }
 
+.scrollBtn {
+    color: black;
+}
+
 .footer {
     position:relative;
     left: 0;
