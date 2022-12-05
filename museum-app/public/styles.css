@@ -1,0 +1,51 @@
+.container {
+    background-color: beige;
+    text-align: center;
+    border-radius: 4px;
+}
+
+.listContainer {
+    padding-left: 40px;
+    padding-right: 40px;
+}
+
+h1 {
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight: bold;
+}
+
+.inputStyle {
+    margin-bottom: 10px;
+}
+
+body {
+    background-color:burlywood;
+}
+
+.artworkImage {
+    width: 20%;
+    border-radius: 4px;
+}
+.mLogo {
+    width: 338.625px;
+    height: 254.25px;
+    object-fit: none;
+}
+
+.scrollBtn {
+    color: black;
+}
+
+.footer {
+    position:relative;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    text-align: center;
+}
+
+.metLogo {
+    width: 120.75px;
+    height: 110.50px;
+    padding: 10px;
+}
