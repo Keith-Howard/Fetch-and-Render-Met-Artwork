@@ -26,6 +26,7 @@ function App() {
                                 setPosts(artwork)
                             })
                             .catch(err => {
+                                console.log(artworkUrl + id);
                                 console.log(err);
                             })
                     }
