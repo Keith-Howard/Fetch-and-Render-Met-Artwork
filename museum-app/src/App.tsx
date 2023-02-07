@@ -12,23 +12,29 @@ function App() {
     const [currentPage, setCurrentPage] = useState<number>(1);
     const postsPerPage: number = 10;
 
+    
     useEffect(() => {
         if (query !=="") {
             let searchString: string =  idUrl + query;
             let artwork: any = [];
             axios.get(searchString)
                 .then(response => {
-                    let objectIds = response.data.objectIDs;
-                    for (let id of objectIds) {
-                        axios.get(artworkUrl + id)
-                            .then(response => { 
-                                artwork = [...artwork, response.data]
-                                setPosts(artwork)
-                            })
-                            .catch(err => {
-                                console.log(artworkUrl + id);
-                                console.log(err);
-                            })
+                    if(response.data.objectIDs !== null) {
+                        let objectIds = response.data.objectIDs;
+                        objectIds = objectIds.slice(0,100);
+                        for (let id of objectIds) {
+                            axios.get(artworkUrl + id)
+                                .then(response => { 
+                                    artwork = [...artwork, response.data]
+                                    setPosts(artwork)
+                                })
+                                .catch(err => {
+                                    console.log(artworkUrl + id);
+                                    console.log(err);
+                                })
+                        }
+                    }else{
+                        alert("Search string " + query + ", no artwork found.");
                     }
                 })
                 .catch(err => {
@@ -37,22 +43,27 @@ function App() {
         }
     },[query])
 
-    const Pagination = ({postsPerPage, totalPosts}) => {
+
+    const pagination = (postsPerPage, totalPosts) => {
+        console.log("pagination");
         let previewButton: any; 
         let nextButton: any;
 
-        if (currentPage === 1) {
-            previewButton = <button id="prevButton" className="btn btn-light btn-outline-dark" disabled onClick={()=> setCurrentPage((currentPage - 1))}>Prev</button>;
-        } else{
-            previewButton = <button id="prevButton" className="btn btn-light btn-outline-dark" onClick={()=> setCurrentPage((currentPage - 1))}><a className="scrollBtn" href="#top">Prev</a></button>;
-        }
+        if (totalPosts !== 0) {
+            console.log('posts > 0')
+            if (currentPage === 1) {
+                previewButton = <button id="prevButton" className="btn btn-light btn-outline-dark" disabled>Prev</button>;
+            } else{
+                previewButton = <button id="prevButton" className="btn btn-light btn-outline-dark" onClick={()=> setCurrentPage((currentPage - 1))}><a className="scrollBtn" href="#top">Prev</a></button>;
+            }
 
-        if (currentPage === Math.ceil(totalPosts / postsPerPage)) {
-            nextButton = <button id="nextButton" className="btn btn-light btn-outline-dark" disabled onClick={()=> setCurrentPage((currentPage + 1))}>Next</button>;
-        } else {
-            nextButton = <button id="nextButton" className="btn btn-light btn-outline-dark" onClick={()=> setCurrentPage((currentPage + 1))}><a className="scrollBtn" href="#top">Next</a></button>;
+            if (currentPage === Math.ceil(totalPosts / postsPerPage)) {
+                nextButton = <button id="nextButton" className="btn btn-light btn-outline-dark" disabled>Next</button>;
+            } else {
+                nextButton = <button id="nextButton" className="btn btn-light btn-outline-dark" onClick={()=> setCurrentPage((currentPage + 1))}><a className="scrollBtn" href="#top">Next</a></button>;
+            }
         }
-
+        
         return (
             <>
             {
@@ -67,17 +78,8 @@ function App() {
         )
     }
 
-    posts.map(item => {
-        if (item.primaryImage === "") {
-            item.primaryImage = "imageNA.png";
-        }
-    })
-
-    const indexOfLastPost = currentPage * postsPerPage;
-    const indexOfFirstPost = indexOfLastPost - postsPerPage;
-    const currentPosts = posts.slice(indexOfFirstPost, indexOfLastPost);
-
     const handleSubmit = (event) => {
+        console.log("handle submit");
         if (userInput === '') {
             alert('Please enter search criteria!');
         } else{
@@ -87,7 +89,10 @@ function App() {
         //document.getElementById("userInputBox").value = '';
         (document.getElementById("userInputBox") as HTMLInputElement).value = '';
     }
-
+    const indexOfLastPost = currentPage * postsPerPage;
+    const indexOfFirstPost = indexOfLastPost - postsPerPage;
+    const currentPosts = posts.slice(indexOfFirstPost, indexOfLastPost);
+    console.log('after slice ', indexOfFirstPost, indexOfLastPost);
     return (
         <form>
             <div>Browse the Collection</div>
@@ -98,10 +103,7 @@ function App() {
                     {currentPosts.map((item, i) => <li className='list-group-item' key={i}><img src={item.primaryImage} className="artworkImage"/><br/><a href={item.objectURL} target="_blank">{item.title}</a> By {item.artistDisplayName}<br/>{item.artistDisplayBio} </li>)}
                 </ul>
             </div>
-            <Pagination 
-            postsPerPage={postsPerPage} 
-            totalPosts={posts.length}
-            />
+            {pagination(postsPerPage, posts.length)}
         </form>
     )
 }
