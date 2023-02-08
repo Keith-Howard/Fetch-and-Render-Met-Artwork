@@ -14,33 +14,43 @@ function App() {
 
     
     useEffect(() => {
-        if (query !=="") {
-            let searchString: string =  idUrl + query;
-            let artwork: any = [];
-            axios.get(searchString)
-                .then(response => {
-                    if(response.data.objectIDs !== null) {
-                        let objectIds = response.data.objectIDs;
-                        objectIds = objectIds.slice(0,100);
-                        for (let id of objectIds) {
-                            axios.get(artworkUrl + id)
-                                .then(response => { 
-                                    artwork = [...artwork, response.data]
-                                    setPosts(artwork)
-                                })
-                                .catch(err => {
-                                    console.log(artworkUrl + id);
-                                    console.log(err);
-                                })
+        const getArtwork = async () => {
+            if (query !=="") {
+                let searchString: string =  idUrl + query;
+                let artwork: any = [];
+                 await axios.get(searchString)
+                    .then(response => {
+                        if(response.data.objectIDs !== null) {
+                            let objectIds = response.data.objectIDs;
+                            objectIds = objectIds.slice(0,100);
+                            for (let id of objectIds) {
+                                console.log('id# ',id);
+                                axios.get(artworkUrl + id)
+                                    .then(response => {
+                                        if (response.data.primaryImage === "") {
+                                            response.data.primaryImage = "imageNA.png";
+                                        }
+                                        artwork = [...artwork, response.data]
+                                        console.log("id after then ", id);
+                                        setPosts(artwork);
+                                        setCurrentPage(1);
+                                    })
+                                    .catch(err => {
+                                        console.log(artworkUrl + id);
+                                        console.log(err);
+                                    })
+                            }
+                        }else{
+                            alert("Search string " + query + ", no artwork found.");
                         }
-                    }else{
-                        alert("Search string " + query + ", no artwork found.");
-                    }
-                })
-                .catch(err => {
-                    console.log(err);
-                })
+                    })
+            }
         }
+
+        getArtwork()
+            .catch(err => {
+                console.log(err);
+            })
     },[query])
 
 
