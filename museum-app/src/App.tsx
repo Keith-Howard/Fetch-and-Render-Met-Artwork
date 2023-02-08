@@ -17,29 +17,33 @@ function App() {
         const getArtwork = async () => {
             if (query !=="") {
                 let searchString: string =  idUrl + query;
-                let artwork: any = [];
                  await axios.get(searchString)
                     .then(response => {
                         if(response.data.objectIDs !== null) {
                             let objectIds = response.data.objectIDs;
-                            objectIds = objectIds.slice(0,100);
-                            for (let id of objectIds) {
-                                console.log('id# ',id);
-                                axios.get(artworkUrl + id)
-                                    .then(response => {
-                                        if (response.data.primaryImage === "") {
-                                            response.data.primaryImage = "imageNA.png";
-                                        }
-                                        artwork = [...artwork, response.data]
-                                        console.log("id after then ", id);
-                                        setPosts(artwork);
-                                        setCurrentPage(1);
-                                    })
-                                    .catch(err => {
-                                        console.log(artworkUrl + id);
-                                        console.log(err);
-                                    })
-                            }
+                            objectIds = objectIds.slice(0,1000);
+                            (async (ids) => {
+                                let artwork: any = [];
+                                for (let id of ids) {
+                                    console.log('id# ',id);
+                                    await axios.get(artworkUrl + id)
+                                        .then(response => {
+                                            if (response.data.primaryImage === "") {
+                                                response.data.primaryImage = "imageNA.png";
+                                            }
+                                            artwork = [...artwork, response.data]
+                                            console.log("output data ", response.data)
+                                            console.log("id after then ", id);
+                                            setPosts(artwork);
+                                        })
+                                        .catch(err => {
+                                            console.log(artworkUrl + id);
+                                            console.log(err);
+                                        })
+                                }
+                            })(objectIds);
+                            console.log("set page");
+                            setCurrentPage(1);
                         }else{
                             alert("Search string " + query + ", no artwork found.");
                         }
@@ -50,7 +54,7 @@ function App() {
         getArtwork()
             .catch(err => {
                 console.log(err);
-            })
+            });
     },[query])
 
 
@@ -110,7 +114,7 @@ function App() {
             <input type='submit' onClick={(event) => handleSubmit(event)} className="inputStyle" />
             <div>
                 <ul className="listContainer">
-                    {currentPosts.map((item, i) => <li className='list-group-item' key={i}><img src={item.primaryImage} className="artworkImage"/><br/><a href={item.objectURL} target="_blank">{item.title}</a> By {item.artistDisplayName}<br/>{item.artistDisplayBio} </li>)}
+                    {currentPosts.map((item, i) => <li className='list-group-item' key={i}><img src={item.primaryImage} alt={item.title} className="artworkImage"/><br/><a href={item.objectURL} target="_blank" rel="noreferrer">{item.title}</a> By {item.artistDisplayName}<br/>{item.artistDisplayBio} </li>)}
                 </ul>
             </div>
             {pagination(postsPerPage, posts.length)}
