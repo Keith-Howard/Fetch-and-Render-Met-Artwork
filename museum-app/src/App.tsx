@@ -21,7 +21,7 @@ function App() {
                     .then(response => {
                         if(response.data.objectIDs !== null) {
                             let objectIds = response.data.objectIDs;
-                            objectIds = objectIds.slice(0,1000);
+                            objectIds = objectIds.slice(0,200);
                             (async (ids) => {
                                 let artwork: any = [];
                                 for (let id of ids) {
