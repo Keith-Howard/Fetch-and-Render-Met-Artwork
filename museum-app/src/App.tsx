@@ -21,7 +21,8 @@ function App() {
                     .then(response => {
                         if(response.data.objectIDs !== null) {
                             let objectIds = response.data.objectIDs;
-                            objectIds = objectIds.slice(0,200);
+                            objectIds = objectIds.slice(0,50);
+                            let count = 0;
                             (async (ids) => {
                                 let artwork: any = [];
                                 for (let id of ids) {
@@ -35,10 +36,18 @@ function App() {
                                             console.log("output data ", response.data)
                                             console.log("id after then ", id);
                                             setPosts(artwork);
+                                            count++;
+                                            if (count === objectIds.length){
+                                                (document.getElementById("search") as HTMLInputElement).disabled = false;
+                                            }
                                         })
                                         .catch(err => {
                                             console.log(artworkUrl + id);
                                             console.log(err);
+                                            count++;
+                                            if (count === objectIds.length){
+                                                (document.getElementById("search") as HTMLInputElement).disabled = false;
+                                            }
                                         })
                                 }
                             })(objectIds);
@@ -46,6 +55,7 @@ function App() {
                             setCurrentPage(1);
                         }else{
                             alert("Search string " + query + ", no artwork found.");
+                            (document.getElementById("search") as HTMLInputElement).disabled = false;
                         }
                     })
             }
@@ -102,6 +112,7 @@ function App() {
         event.preventDefault();
         //document.getElementById("userInputBox").value = '';
         (document.getElementById("userInputBox") as HTMLInputElement).value = '';
+        (document.getElementById("search") as HTMLInputElement).disabled = true;
     }
     const indexOfLastPost = currentPage * postsPerPage;
     const indexOfFirstPost = indexOfLastPost - postsPerPage;
@@ -111,7 +122,7 @@ function App() {
         <form>
             <div>Browse the Collection</div>
             <input id='userInputBox' type='text' className="inputStyle" onChange={(event) => setUserInput(event.target.value)} placeholder="Search..."/>
-            <input type='submit' onClick={(event) => handleSubmit(event)} className="inputStyle" />
+            <input type='submit' id="search" onClick={(event) => handleSubmit(event)} className="inputStyle" />
             <div>
                 <ul className="listContainer">
                     {currentPosts.map((item, i) => <li className='list-group-item' key={i}><img src={item.primaryImage} alt={item.title} className="artworkImage"/><br/><a href={item.objectURL} target="_blank" rel="noreferrer">{item.title}</a> By {item.artistDisplayName}<br/>{item.artistDisplayBio} </li>)}
